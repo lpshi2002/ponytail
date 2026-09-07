@@ -67,6 +67,16 @@ assert.match(
   /PONYTAIL MODE ACTIVE — level: ultra/,
 );
 
+// Scope lives in the body: metadata is stripped before the hook reaches Codex.
+// Check the delivered payload and missing-skill fallback, not just the source file.
+const { getPonytailInstructions, getFallbackInstructions } = require('../hooks/ponytail-instructions');
+const scope = fs.readFileSync(path.join(root, 'skills/ponytail/SKILL.md'), 'utf8')
+  .match(/## Scope and priority\n+([\s\S]*?)\n## /)[1].replace(/\s+/g, ' ').trim();
+for (const context of [output.hookSpecificOutput.additionalContext,
+  ...['lite', 'full', 'ultra'].flatMap(mode => [getPonytailInstructions(mode), getFallbackInstructions(mode)])]) {
+  assert.ok(context.replace(/\s+/g, ' ').includes(scope), 'runtime instructions must retain the complete coding-only scope and user priority');
+}
+
 result = run(
   'ponytail-mode-tracker.js',
   codexEnv,
