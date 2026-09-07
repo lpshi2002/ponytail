@@ -128,7 +128,42 @@ The Claude Code and Codex plugins run two tiny Node.js lifecycle hooks, so `node
 
 Same steps in the Claude Code Desktop app's Code tab: type the two `/plugin` commands above into the prompt box, or click the **+** button next to it, choose **Plugins** → **Add plugin** to browse your configured marketplaces, and manage marketplaces from **Customize** in the sidebar.
 
-### Codex
+### Codex — personal fork
+
+This fork keeps Ponytail's minimal-engineering ladder with four adjustments:
+complete the requested scope, reuse sufficient tests, preserve useful completion
+and verification details, and apply the rules only to coding work.
+The changes follow the [Astra prompting guidance](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra#prompting-best-practices).
+Upstream authorship and version numbers are retained; the `ponytail-personal`
+marketplace and Git commit identify this installation. Keep the original
+`ponytail@ponytail` plugin disabled when using this fork.
+
+```bash
+codex plugin marketplace add lpshi2002/ponytail
+codex plugin add ponytail@ponytail-personal
+```
+
+To bring upstream changes into a local clone of this fork, configure
+`upstream` as `https://github.com/DietrichGebert/ponytail.git` once, then run:
+
+```bash
+git fetch upstream
+git merge upstream/main
+node scripts/check-rule-copies.js
+node scripts/check-versions.js
+npm test
+git push origin main
+codex plugin marketplace upgrade ponytail-personal
+codex plugin add ponytail@ponytail-personal
+```
+
+Resolve any merge conflicts before continuing. Keep the personal marketplace
+name and fork source URL in `.agents/plugins/marketplace.json`. If rules change,
+update the compact copies and run `node scripts/build-openclaw-skills.js` before
+the checks. Tests need Python with pandas and `npm install --prefix ponytail-mcp`.
+After updating, review any changed lifecycle hooks in Codex's `/hooks` view.
+
+### Codex — upstream installation
 
 ```bash
 codex plugin marketplace add DietrichGebert/ponytail
